@@ -1,0 +1,158 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "TomTom Traffic Flow Segment Data API",
+      "version": "1.0.0",
+      "description": "TomTom Traffic API — get traffic flow data (speed, travel time) for a road segment near a given coordinate. The API key is included in every request."
+    },
+    "servers": [
+      {
+        "url": "https://api.tomtom.com/traffic/services/4"
+      }
+    ],
+    "paths": {
+      "/flowSegmentData/{style}/{zoom}/{format}": {
+        "get": {
+          "summary": "Get traffic flow segment data for a point",
+          "parameters": [
+            {
+              "name": "style",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "enum": ["absolute", "relative", "relative0", "relative0-dark", "relative-delay"]
+              },
+              "description": "Style of flow data"
+            },
+            {
+              "name": "zoom",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 22
+              },
+              "description": "Zoom level (0–22)"
+            },
+            {
+              "name": "format",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "enum": ["json", "xml", "jsonp"]
+              },
+              "description": "Response format"
+            },
+            {
+              "name": "point",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "pattern": "^-?\\d+\\.\\d+,-?\\d+\\.\\d+$"
+              },
+              "description": "Latitude,longitude of a point close to the road segment (EPSG:4326)"
+            },
+            {
+              "name": "unit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "enum": ["kmph", "mph"]
+              },
+              "description": "Unit of speed; default is kmph"
+            },
+            {
+              "name": "thickness",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              "description": "Width multiplier for segment thickness"
+            },
+            {
+              "name": "openLr",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "boolean"
+              },
+              "description": "If true, include OpenLR code"
+            },
+            {
+              "name": "key",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "default": "MUIRNrUdrypRndcEW6VDn78wfPzkGWmh"
+              },
+              "description": "TomTom API key (hardcoded for this tool)"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Traffic flow segment data",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "flowSegmentData": {
+                        "type": "object",
+                        "properties": {
+                          "frc": { "type": "string" },
+                          "currentSpeed": { "type": "number" },
+                          "freeFlowSpeed": { "type": "number" },
+                          "currentTravelTime": { "type": "number" },
+                          "freeFlowTravelTime": { "type": "number" },
+                          "confidence": { "type": "number" },
+                          "roadClosure": { "type": "boolean" },
+                          "coordinates": {
+                            "type": "object",
+                            "properties": {
+                              "coordinate": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "latitude": { "type": "number" },
+                                    "longitude": { "type": "number" }
+                                  },
+                                  "required": ["latitude", "longitude"]
+                                }
+                              }
+                            }
+                          },
+                          "openLr": { "type": "string" }
+                        },
+                        "required": ["frc", "currentSpeed", "freeFlowSpeed", "currentTravelTime"]
+                      }
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "string",
+                    "description": "XML response"
+                  }
+                }
+              }
+            },
+            "400": { "description": "Bad Request — missing or invalid parameter" },
+            "403": { "description": "Forbidden — invalid API key or plan" },
+            "429": { "description": "Too Many Requests" },
+            "500": { "description": "Internal Server Error" }
+          }
+        }
+      }
+    }
+  }
+  
